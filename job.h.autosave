@@ -1,0 +1,23 @@
+#ifndef JOB_H
+#define JOB_H
+
+#include <QObject>
+#include <QRunnable>
+
+#include "jobresult.h"
+
+class Job:public QObject,public QRunnable
+{
+    Q_OBJECT
+public:
+    Job(QObject* parent=0);
+    void run() override;
+private:
+        QSize mAreaSize;
+    int pixelPositionY;
+    QPointF moveOffset;
+    double scaleFactor;
+
+};
+
+#endif // JOB_H
