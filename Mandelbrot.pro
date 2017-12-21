@@ -27,12 +27,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    job.cpp
+    job.cpp \
+    mandelbrotcalculator.cpp
 
 HEADERS += \
         mainwindow.h \
     jobresult.h \
-    job.h
+    job.h \
+    mandelbrotcalculator.h
 
 FORMS += \
         mainwindow.ui

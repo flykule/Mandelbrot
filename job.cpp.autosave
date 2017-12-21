@@ -1,6 +1,54 @@
 #include "job.h"
 
-Job::Job()
-{
+Job::Job() {}
 
+Job::Job(QObject *parent)
+    : QObject(parent), mAbort(false), mPixelPositionY(0), mMoveOffset(0.0, 0.0),
+      mScaleFactor(0.0), mAreaSize(0, 0), mIterationMax(1) {}
+
+void Job::run() {
+  JobResult jobResult(mAreaSize.width());
+  jobResult.areaSize = mAreaSize;
+  jobResult.pixelPositionY = mPixelPositionY;
+  jobResult.moveOffset = mMoveOffset;
+  jobResult.scaleFactor = mScaleFactor;
+
+  double imageHalfWidth = mAreaSize.width() / 2.0;
+  double imageHalfHeight = mAreaSize.height() / 2.0;
+  for (int imageX = 0; imageX < mAreaSize.width(); ++imageX) {
+    int iteration = 0;
+    double x0 = (imageX - imageHalfWidth) * mScaleFactor + mMoveOffset.x();
+    double y0 = (imageY - imageHalfHeight) * mScaleFactor + mMoveOffset.y();
+    double x = 0.0;
+    double y = 0.0;
+    do {
+      if (mAbort.load()) {
+        return;
+      }
+
+      double nextX = (x * x) - (y * y) + x0;
+      y = 2.0 * x * y + y0;
+      x = nextX;
+      iteration++;
+    } while (iteration < mIterationMax && (x * x) + (y * y) < 4.0);
+    jobResult.values[imageX] = iteration;
+  }
+  emit jobCompleted(jobResult);
+}
+
+void Job::setAreaSize(const QSize &areaSize) { mAreaSize = areaSize; }
+
+void Job::setPixelPositionY(int pixelPositionY) {
+  mPixelPositionY = pixelPositionY;
+}
+
+void Job::setMoveOffset(const QPointF &moveOffset) { mMoveOffset = moveOffset; }
+
+void Job::setScaleFactor(double scaleFactor) { mScaleFactor = scaleFactor; }
+
+void Job::setIterationMax(int iterationMax) { mIterationMax = iterationMax; }
+
+void Job::abort()
+{
+    mAbort.store(true);
 }
